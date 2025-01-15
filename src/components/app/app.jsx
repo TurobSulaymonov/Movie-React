@@ -1,3 +1,4 @@
+import MovieService from '../../services/movie.service'
 import Header from '../header/header'
 import Hero from '../hero/hero'
 import RowMovies from '../row-movies/row-movies'

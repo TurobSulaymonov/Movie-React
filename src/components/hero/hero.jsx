@@ -1,37 +1,54 @@
-import './hero.scss'
+import React from 'react'
 
-const Hero = () => {
-	return (
-		<div className='app__hero'>
-			<div className='app__hero-info'>
-				<h2>FIND MOVIES</h2>
-				<h1>TV shows and more</h1>
-				<p>
-					Lorem ipsum dolor sit amet consectetur adipisicing elit. Illum
-					sapiente sit placeat minus dolorum, magnam, tempora quas neque quasi,
-					sequi odit doloremque velit saepe autem facilis! Laudantium
-					consequatur accusantium mollitia.
-				</p>
-				<button className='btn btn__primary'>DETAILS</button>
-			</div>
-			<div className='app__hero-moive'>
-				<img src='/vegebond.jpeg' alt='img' />
-				<div className='app__hero-moive__descr'>
-					<h2>Vegabond</h2>
+import "./hero.scss"
+import MovieService from '../../services/movie.service'
+
+class Hero extends React.Component {
+	constructor(props) {
+		super(props)
+		this.state = {
+			name: null,
+			description: null,
+			backdrop_path: null,
+			poster_path: null,
+			id: null,
+		}
+		this.movieService = new MovieService()
+		this.getMovie()
+	}
+
+	getMovie = () => {
+		this.movieService.getRandomMovie().then(res => this.setState(res))
+	}
+
+	render() {
+		const {name,description,backdrop_path} = this.state
+
+		return (
+			<div className='hero'>
+				<div className='hero__info'>
+					<h2>FIND MOVIES</h2>
+					<h1>TV shows and more</h1>
 					<p>
-						Lorem ipsum, dolor sit amet consectetur adipisicing elit. Dolor
-						laboriosam id aperiam tempore dolorem fuga, qui iure veniam,
-						repellat in, labore distinctio numquam excepturi? Quam aspernatur
-						sint fuga debitis earum?
+						Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat sunt necessitatibus veritatis labore provident similique neque praesentium debitis maiores. Nihil consectetur, veniam labore magnam ab similique optio perferendis error earum.
 					</p>
-					<div>
-						<button className='btn btn__secondary'>RANDOM MOVIE</button>
-						<button className='btn btn__primary'>DETAILS</button>
+					<button className='btn btn-primary'>Details</button>
+				</div>
+				<div className='hero__movie'>
+					<img src={backdrop_path} alt='img' />
+	
+					<div className='hero__movie-descr'>
+						<h2>{name}</h2>	
+						<p>{description && description.length >= 250 ? `${description.slice(0,250)}...` : description}</p>
+						<div>
+							<button className='btn btn-secondary'>Radnom movie</button>
+							<button className='btn btn-primary'>Details</button>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-	)
+		)
+	}
 }
 
 export default Hero
