@@ -2,27 +2,34 @@ import React from 'react'
 
 import "./hero.scss"
 import MovieService from '../../services/movie.service'
+import Spinner from '../spinner/spinner'
+import Error from '../error/error'
 
 class Hero extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = {
-			name: null,
-			description: null,
-			backdrop_path: null,
-			poster_path: null,
-			id: null,
+			movie: {},
+			loading: true,
+			error: false
 		}
 		this.movieService = new MovieService()
-		this.getMovie()
+		this.updateMovie()
 	}
 
-	getMovie = () => {
-		this.movieService.getRandomMovie().then(res => this.setState(res))
+	updateMovie = () => {
+		this.movieService.getRandomMovie()
+		.then(res => this.setState({movie: res}))
+		.catch(() => this.setState({error: true}))
+		.finally(() => this.setState({loading: false}))
 	}
 
 	render() {
-		const {name,description,backdrop_path} = this.state
+		const {movie, loading, error} = this.state;
+		
+		const contentError = error ? <Error/> : null;
+		const contentLoading = loading ? <Spinner/> : null;
+		const content = !(error || loading) ?  <Content movie={movie}/> : null;
 
 		return (
 			<div className='hero'>
@@ -32,19 +39,15 @@ class Hero extends React.Component {
 					<p>
 						Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat sunt necessitatibus veritatis labore provident similique neque praesentium debitis maiores. Nihil consectetur, veniam labore magnam ab similique optio perferendis error earum.
 					</p>
+					<div>
 					<button className='btn btn-primary'>Details</button>
+					<button className='btn btn-secondary' onClick={this.updateMovie}>Random movie</button>
+					</div>
 				</div>
 				<div className='hero__movie'>
-					<img src={backdrop_path} alt='img' />
-	
-					<div className='hero__movie-descr'>
-						<h2>{name}</h2>	
-						<p>{description && description.length >= 250 ? `${description.slice(0,250)}...` : description}</p>
-						<div>
-							<button className='btn btn-secondary'>Radnom movie</button>
-							<button className='btn btn-primary'>Details</button>
-						</div>
-					</div>
+			    	{contentError}
+			    	{contentLoading}
+				    {content}
 				</div>
 			</div>
 		)
@@ -52,3 +55,21 @@ class Hero extends React.Component {
 }
 
 export default Hero
+
+const Content = ({movie}) => {
+return (
+	<>
+		<img src={movie.backdrop_path} alt='img' />
+	
+	<div className='hero__movie-descr'>
+		<h2>{movie.name}</h2>	
+		<p>{movie.description && movie.description.length >= 250 
+		  ?
+			`${movie.description.slice(0,250)}...`
+		  :  movie.description}
+		  </p>
+	     	<button className='btn btn-primary'>Details</button>
+		</div>
+	</>
+)
+}

@@ -1,25 +1,49 @@
 import React from 'react'
 import { Modal } from 'react-responsive-modal'
 import 'react-responsive-modal/styles.css'
-import { movies } from '../../constants'
 import MovieInfo from '../movie-info/movie-info'
 import RowMoviesItem from '../row-movies-item/row-movies-item'
 import './row-movies.scss'
+import MovieService from '../../services/movie.service'
+import Spinner from '../spinner/spinner'
+import Error from '../error/error'
+
 
 class RowMovies extends React.Component {
-	constructor(props) {
-		super(props)
-		this.state = {
+	state = {
 			open: false,
+			movies: [],
+			movieId: null,
+			loading: true,
+			error: false
 		}
-	}
+		
+	movieService = new MovieService()
+	
 
-	onToggleOpen = () => {
-		this.setState(({ open }) => ({ open: !open }))
+	componentDidMount() {
+		this.getTrendingMovies()
+	}
+   
+	onClose = () => this.setState({open: false});
+
+	onOpen = (id) => this.setState({open: true, movieId: id})
+	
+
+	getTrendingMovies = () => {
+		this.movieService.getTrandingMovies()
+		 .then(res => this.setState({movies: res}))
+		 .catch(() => this.setState({error: true}))
+		.finally(() => this.setState({loading: false}))
 	}
 
 	render() {
-		const { open } = this.state
+		const { open, movies, movieId, error, loading} = this.state
+
+		const contentError = error ? <Error/> : null;
+		const contentLoading = loading ? <Spinner/> : null;
+	
+
 
 		return (
 			<div className='app__rowmovie'>
@@ -33,21 +57,24 @@ class RowMovies extends React.Component {
 				</div>
 
 				<div className='app__rowmovie-lists'>
-					{movies.map((movie, index) => (
+					{contentError}
+					{!contentLoading}
+					{movies.map((movie) => (
 						<RowMoviesItem
-							key={index}
-							movie={{ ...movie, index }}
-							onToggleOpen={this.onToggleOpen}
+							key={movie.id}
+							movie={movie}
+							onOpen={this.onOpen}
 						/>
 					))}
 				</div>
 
-				<Modal open={open} onClose={this.onToggleOpen}>
-					<MovieInfo />
+				<Modal open={open} onClose={this.onClose} >
+					<MovieInfo movieId={movieId}  />
 				</Modal>
 			</div>
 		)
 	}
 }
+
 
 export default RowMovies
