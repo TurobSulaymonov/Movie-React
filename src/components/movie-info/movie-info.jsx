@@ -1,16 +1,16 @@
-import MovieService from '../../services/movie.service'
 import './movie-info.scss'
 import {useState, useEffect} from 'react'
 import Spinner from '../spinner/spinner'
 import Error from '../error/error'
+import useMovieService from '../../services/movie.service'
+import { useNavigate } from 'react-router-dom'
 
 
 const MovieInfo = ({movieId}) => {
 	     
 	     const [movie, setMovie] = useState(null);
-		 const [loading, setLoading] =  useState(true);
-		 const [error, setError] = useState(false);
-		 const movieService = new MovieService();
+		
+		 const {getDetailedMovie, loading, error} = useMovieService();
 		 
      
 		 useEffect(() => {
@@ -24,17 +24,13 @@ const MovieInfo = ({movieId}) => {
 		if(!movieId) {
 		  return
 		}
-		setLoading(true)
-
-		movieService
-		.getDetailedMovie(movieId)
-		.then(res =>  setMovie(res))
-		.catch(() =>  setError(true))
-		.finally(() => setLoading(false))
+	
+		getDetailedMovie(movieId).then(res =>  setMovie(res))
+	
 	}
       	const contentError = error ? <Error/> : null;
 		const contentLoading = loading ? <Spinner/> : null;
-		const content = !(error || loading) ?  <Content movie={movie}/> : null;
+		const content = !(error || loading || !movie) ?  <Content movie={movie}/> : null;
 
 
 		return (
@@ -52,6 +48,7 @@ export default MovieInfo
 
 
 const Content = ({movie}) => {
+	const navigate = useNavigate()
 	return (
 		<>
 			<img src={movie.backdrop_path} alt='img' />
@@ -59,7 +56,12 @@ const Content = ({movie}) => {
 		<div className='hero__movie-descr'>
 			<h2>{movie.name}</h2>	
 			<p>{movie.description}</p>
-		
+		  <button 
+		  className='btn btn-light'
+		   onClick={() => navigate(`/movie/${movie.id}`)}
+		   >
+			Details
+		  </button>
 		</div>
 		</>
 	)

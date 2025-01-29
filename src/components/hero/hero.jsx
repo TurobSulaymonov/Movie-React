@@ -1,28 +1,23 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import "./hero.scss"
-import MovieService from '../../services/movie.service'
 import Spinner from '../spinner/spinner'
 import Error from '../error/error'
+import useMovieService from '../../services/movie.service'
+import { useNavigate } from 'react-router-dom'
 
 const Hero = () => {
      const [movie, setMovie] = useState(null);
-	 const [loading, setLoading] =  useState(true);
-	 const [error, setError] = useState(false);
-
-	 const movieService = new MovieService();
+	 const {getRandomMovie, loading, error, clearError} = useMovieService();
 
 useEffect(() => {
-   updateMovie()
+	 clearError()
+     updateMovie()
 }, [])
 
 const updateMovie = () => {
-      setLoading(true)
-
-		movieService.getRandomMovie()
-		.then(res => setMovie(res))
-		.catch(() => setError(true))
-		.finally(() => setLoading(false))
+		getRandomMovie().then(res => setMovie(res))
+		
 	}
 
 	
@@ -30,7 +25,7 @@ const updateMovie = () => {
 		
 		const contentError = error ? <Error/> : null;
 		const contentLoading = loading ? <Spinner/> : null;
-		const content = !(error || loading) ?  <Content movie={movie}/> : null;
+		const content = !(error || loading || !movie) ?  <Content movie={movie}/> : null;
 
 		return (
 			<div className='hero'>
@@ -58,6 +53,7 @@ const updateMovie = () => {
 export default Hero
 
 const Content = ({movie}) => {
+	const navigate = useNavigate()
 return (
 	<>
 		<img src={movie.backdrop_path} alt='img' />
@@ -69,7 +65,7 @@ return (
 			`${movie.description.slice(0,250)}...`
 		  :  movie.description}
 		  </p>
-	     	<button className='btn btn-primary'>Details</button>
+	     	<button className='btn btn-primary' onClick={() => navigate(`/movie/${movie.id}`)}>Details</button>
 		</div>
 	</>
 )
