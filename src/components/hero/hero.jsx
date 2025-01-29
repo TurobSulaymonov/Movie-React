@@ -37,7 +37,12 @@ const updateMovie = () => {
 					</p>
 					<div>
 					<button className='btn btn-primary'>Details</button>
-					<button className='btn btn-secondary' onClick={updateMovie}>Random movie</button>
+					<button 
+					  className='btn btn-secondary' 
+					  onClick={updateMovie}
+					>
+						Random movie
+					</button>
 					</div>
 				</div>
 				<div className='hero__movie'>
@@ -65,7 +70,12 @@ return (
 			`${movie.description.slice(0,250)}...`
 		  :  movie.description}
 		  </p>
-	     	<button className='btn btn-primary' onClick={() => navigate(`/movie/${movie.id}`)}>Details</button>
+	     	<button 
+			 className='btn btn-primary' 
+			 onClick={() => navigate(`/movie/${movie.id}`)}
+			>
+					Details
+			</button>
 		</div>
 	</>
 )
