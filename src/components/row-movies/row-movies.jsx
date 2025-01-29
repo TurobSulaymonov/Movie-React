@@ -1,4 +1,4 @@
-import React from 'react'
+import {useEffect, useState} from 'react'
 import { Modal } from 'react-responsive-modal'
 import 'react-responsive-modal/styles.css'
 import MovieService from '../../services/movie.service'
@@ -6,48 +6,53 @@ import Error from '../error/error'
 import MovieInfo from '../movie-info/movie-info'
 import RowMoviesItem from '../row-movies-item/row-movies-item'
 import Spinner from '../spinner/spinner'
+import PropTypes from 'prop-types'
 import "./row-movies.scss"
 
-class RowMovies extends React.Component {
-	state = {
-		loading: true,
-		error: false,
-		open: false,
-		movies: [],
-		movieId: null,
-		page: 2,
-		newItemLoading: false
+const RowMovies = () => {
+	 const [movies, setMovies] = useState([]);
+	 const [loading, setLoading] =  useState(true);
+	 const [error, setError] = useState(false);
+	 const [open, setOpen] = useState(false);
+	 const [movieId, setMovieId] = useState(null);
+     const [page, setPage] = useState(2);
+     const [newItemLoading, setNewItemLoading] = useState(false);
+	 const movieService = new MovieService()
+ 
+     useEffect(() => {
+		getTrendingMovies()
+	 }, []);
+
+
+	const onClose = () => setOpen(false)
+
+    const onOpen = (id) =>{
+		setMovieId(id)
+		setOpen(true)
 	}
 
-	movieService = new MovieService()
-
-	componentDidMount() {
-		this.getTrendingMovies()
-	}
-
-	onClose = () => this.setState({open: false})
-
-	onOpen = (id) => this.setState({open: true, movieId: id})
-
-	getTrendingMovies = (page) => {
+	const getTrendingMovies = (page) => {
 		
-		this.movieService.getTrandingMovies(page)
-			.then(res => this.setState(({movies}) => ({movies: [...movies, ...res]})))
-			.catch(() => this.setState({error: true}))
-			.finally(() => this.setState({loading: false, newItemLoading: false}))
+		movieService.getTrandingMovies(page)
+			.then(res => setMovies(movies => [...movies, ...res]))
+			.catch(() => setError(true))
+			.finally(() => 
+			{
+				setLoading(false),
+				setNewItemLoading(false)
+			})
 	}
 
-	getMoreMovies = () => {
-		this.setState(({page}) => ({page: page+1, newItemLoading: true}))
-		this.getTrendingMovies(this.state.page)
+	 const getMoreMovies = () => {
+		setNewItemLoading(true)
+		setPage(page => page+1)
+		getTrendingMovies(page)
 	}
 
-	render() {
-		const {open, movies, movieId, error, loading, newItemLoading} = this.state
-
+	
 		const errorContent = error ? <Error /> : null
 		const loadingContent = loading ? <Spinner /> : null
-		const content = !(error || loading) ? <Content movies={movies} onOpen={this.onOpen} /> : null
+		const content = !(error || loading) ? <Content movies={movies} onOpen={onOpen} /> : null
 
 		return (
 			<div className='rowmovies'>
@@ -66,20 +71,20 @@ class RowMovies extends React.Component {
 				<div className='rowmovies__loadmore'>
 					<button 
 						className='btn btn-secondary' 
-						onClick={this.getMoreMovies}
+						onClick={getMoreMovies}
 						disabled={newItemLoading}
 					>
 						Load More
 					</button>
 				</div>
 	
-				<Modal open={open} onClose={this.onClose}>
+				<Modal open={open} onClose={onClose}>
 					<MovieInfo movieId={movieId} />
 				</Modal>
 			</div>
 		)
 	}
-}
+
 
 export default RowMovies
 
@@ -95,4 +100,10 @@ const Content = ({movies, onOpen}) => {
 			))}
 		</div>
 	)
+}
+
+
+Content.propTypes = {
+	movies: PropTypes.array,
+	onOpen: PropTypes.func
 }

@@ -1,31 +1,32 @@
-import React from 'react'
-
+import React, { useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
 import "./hero.scss"
 import MovieService from '../../services/movie.service'
 import Spinner from '../spinner/spinner'
 import Error from '../error/error'
 
-class Hero extends React.Component {
-	constructor(props) {
-		super(props)
-		this.state = {
-			movie: {},
-			loading: true,
-			error: false
-		}
-		this.movieService = new MovieService()
-		this.updateMovie()
+const Hero = () => {
+     const [movie, setMovie] = useState(null);
+	 const [loading, setLoading] =  useState(true);
+	 const [error, setError] = useState(false);
+
+	 const movieService = new MovieService();
+
+useEffect(() => {
+   updateMovie()
+}, [])
+
+const updateMovie = () => {
+      setLoading(true)
+
+		movieService.getRandomMovie()
+		.then(res => setMovie(res))
+		.catch(() => setError(true))
+		.finally(() => setLoading(false))
 	}
 
-	updateMovie = () => {
-		this.movieService.getRandomMovie()
-		.then(res => this.setState({movie: res}))
-		.catch(() => this.setState({error: true}))
-		.finally(() => this.setState({loading: false}))
-	}
+	
 
-	render() {
-		const {movie, loading, error} = this.state;
 		
 		const contentError = error ? <Error/> : null;
 		const contentLoading = loading ? <Spinner/> : null;
@@ -41,7 +42,7 @@ class Hero extends React.Component {
 					</p>
 					<div>
 					<button className='btn btn-primary'>Details</button>
-					<button className='btn btn-secondary' onClick={this.updateMovie}>Random movie</button>
+					<button className='btn btn-secondary' onClick={updateMovie}>Random movie</button>
 					</div>
 				</div>
 				<div className='hero__movie'>
@@ -52,7 +53,7 @@ class Hero extends React.Component {
 			</div>
 		)
 	}
-}
+
 
 export default Hero
 
@@ -72,4 +73,7 @@ return (
 		</div>
 	</>
 )
+}
+Content.propTypes = {
+	movie: PropTypes.object
 }
